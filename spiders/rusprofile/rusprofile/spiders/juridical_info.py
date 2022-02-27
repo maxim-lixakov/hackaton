@@ -14,7 +14,9 @@ class JuridicalInfoSpider(scrapy.Spider):
 
     def start_requests(self):
         with open('result_of_whois.jl') as f:
-            for line in f.readlines():
+            # test because of ban
+            # for line in f.readlines()[:5]:
+            for line in f.readlines()[:5]:
                 line = json.loads(line)
                 inn = line['inn']
                 yield Request(

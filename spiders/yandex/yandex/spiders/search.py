@@ -20,7 +20,9 @@ class SearchSpider(scrapy.Spider):
             for filename in z.namelist():
                 if 'sharedStrings' in filename:
                     with z.open(filename) as f:
-                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode()):
+                        # test because of ban
+                        # for element in re.findall('<t>\*(.+?)</t>', f.read().decode()):
+                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode())[:1]:
                             text = re.sub('ГОСТ\s+\d+', '', element)
                             yield scrapy.Request(f'https://yandex.ru/search/?text={text}', callback=self.parse)
 
