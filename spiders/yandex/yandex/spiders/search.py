@@ -4,15 +4,18 @@ import zipfile
 
 import scrapy
 
+from yandex.items import YandexItem
+
 
 class SearchSpider(scrapy.Spider):
     name = 'search'
     allowed_domains = ['yandex.ru']
     start_urls = ['http://yandex.ru/']
+    resources = set()
 
     def start_requests(self):
         dirname = os.getcwd()
-        filename = os.path.join(dirname, 'data\poiskpostav_v1.xlsx')
+        filename = os.path.join(dirname, 'data/poiskpostav_v1.xlsx')
         with zipfile.ZipFile(filename) as z:
             for filename in z.namelist():
                 if 'sharedStrings' in filename:
@@ -22,4 +25,11 @@ class SearchSpider(scrapy.Spider):
                             yield scrapy.Request(f'https://yandex.ru/search/?text={text}', callback=self.parse)
 
     def parse(self, response, **kwargs):
-        content = response.body
+        for resource in response.xpath('//a/@href').getall():
+            link = re.findall('http[s]*:\/\/(.+?)\/', resource)
+            if link:
+                if link[0] not in self.resources:
+                    item = YandexItem()
+                    item['domain'] = link[0]
+                    self.resources.add(link[0])
+                    yield item
