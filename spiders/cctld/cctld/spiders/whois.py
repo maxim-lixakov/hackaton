@@ -19,6 +19,7 @@ class WhoisSpider(Spider):
                 yield Request(
                     url=urljoin(self.base_url, line['domain']),
                     callback=self.parse,
+                    cb_kwargs=line,
                 )
 
     def parse(self, response, **kwargs):
@@ -30,4 +31,5 @@ class WhoisSpider(Spider):
                 loader = DomainLoader(DomainItem())
                 loader.add_value('domain', domain)
                 loader.add_value('inn', inn)
+                loader.add_value('place_in_search', kwargs['place_in_search'])
                 yield loader.load_item()
