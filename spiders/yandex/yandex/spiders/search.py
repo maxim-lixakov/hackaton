@@ -12,6 +12,7 @@ class SearchSpider(scrapy.Spider):
     allowed_domains = ['yandex.ru']
     start_urls = ['http://yandex.ru/']
     resources = set()
+    place_in_search = 1
 
     def start_requests(self):
         dirname = os.getcwd()
@@ -31,5 +32,7 @@ class SearchSpider(scrapy.Spider):
                 if link[0] not in self.resources:
                     item = YandexItem()
                     item['domain'] = link[0]
+                    item['place_in_search'] = self.place_in_search
+                    self.place_in_search += 1
                     self.resources.add(link[0])
                     yield item

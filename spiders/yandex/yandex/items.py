@@ -8,3 +8,4 @@ import scrapy
 
 class YandexItem(scrapy.Item):
     domain = scrapy.Field()
+    place_in_search = scrapy.Field()
