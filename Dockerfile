@@ -6,4 +6,7 @@ RUN pip install -r requirements.txt
 COPY . /opt/app
 RUN cd spiders/yandex && scrapy crawl search --logfile log.log -o result_of_yandex_search.jl \
     && cp -R /opt/app/spiders/yandex/result_of_yandex_search.jl /opt/app/spiders/cctld/result_of_yandex_search.jl
-RUN cd spiders/cctld && scrapy crawl whois --logfile log.log -o result_of_whois.jl && rm result_of_yandex_search.jl
+RUN cd spiders/cctld && scrapy crawl whois --logfile log.log -o result_of_whois.jl && rm result_of_yandex_search.jl \
+    && cp -R /opt/app/spiders/cctld/result_of_whois.jl /opt/app/spiders/rusprofile/result_of_whois.jl
+RUN cd spiders/rusprofile && scrapy crawl juridical_info --logfile log.log -o result_rusprofile.jl \
+    && rm result_of_whois.jl

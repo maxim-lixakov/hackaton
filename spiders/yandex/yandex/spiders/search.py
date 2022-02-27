@@ -27,7 +27,7 @@ class SearchSpider(scrapy.Spider):
 
     def parse(self, response, **kwargs):
         for resource in response.xpath('//a/@href').getall():
-            link = re.findall('http[s]*:\/\/(.+?)\/', resource)
+            link = re.findall('http[s]*:\/\/(?:www\.|)(.+?)\/', resource)
             if link:
                 if link[0] not in self.resources:
                     item = YandexItem()
