@@ -9,8 +9,7 @@ from yandex.items import YandexItem
 
 class SearchSpider(scrapy.Spider):
     name = 'search'
-    allowed_domains = ['yandex.ru']
-    start_urls = ['http://yandex.ru/']
+    start_urls = ["yandex.ru"]
     resources = set()
     place_in_search = 1
 
@@ -21,7 +20,7 @@ class SearchSpider(scrapy.Spider):
             for filename in z.namelist():
                 if 'sharedStrings' in filename:
                     with z.open(filename) as f:
-                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode())[:2]:
+                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode()):
                             text = re.sub('ГОСТ\s+\d+', '', element)
                             yield scrapy.Request(f'https://yandex.ru/search/?text={text}', callback=self.parse)
 
@@ -35,4 +34,13 @@ class SearchSpider(scrapy.Spider):
                     item['place_in_search'] = self.place_in_search
                     self.place_in_search += 1
                     self.resources.add(link[0])
-                    yield item
+                    url = f'https://{link[0]}'
+                    yield scrapy.Request(url=url, callback=self.get_name, cb_kwargs={'item': item})
+
+    def get_name(self, response, **kwargs):
+        item = kwargs['item']
+        item['title'] = response.xpath('//title/text()').get()
+        probable_name = re.findall('(["]*ООО["]*\s[A-zА-Яа-я()]+)', response.text)
+        if probable_name:
+            item['probable_name'] = probable_name[0]
+        yield item
