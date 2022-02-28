@@ -4,14 +4,14 @@ import zipfile
 
 import scrapy
 
-from yandex.items import YandexItem
+from yandex_and_google.items import DomainItem
 
 
 class SearchSpider(scrapy.Spider):
     name = 'search'
-    start_urls = ["yandex.ru"]
     resources = set()
-    place_in_search = 1
+    place_in_search_yandex = 1
+    place_in_search_google = 1
 
     def start_requests(self):
         dirname = os.getcwd()
@@ -22,19 +22,22 @@ class SearchSpider(scrapy.Spider):
                     with z.open(filename) as f:
                         # test because of ban
                         # for element in re.findall('<t>\*(.+?)</t>', f.read().decode()):
-                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode())[:1]:
+                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode())[:2]:
                             text = re.sub('ГОСТ\s+\d+', '', element)
                             yield scrapy.Request(f'https://yandex.ru/search/?text={text}', callback=self.parse)
+                            google_url = f'https://www.google.com/search?q={text}' \
+                                  '&aqs=chrome..69i57j0i546l2.223j0j7&sourceid=chrome&ie=UTF-8'
+                            yield scrapy.Request(url=google_url, callback=self.parse)
 
     def parse(self, response, **kwargs):
         for resource in response.xpath('//a/@href').getall():
             link = re.findall('http[s]*:\/\/(?:www\.|)(.+?)\/', resource)
             if link:
                 if link[0] not in self.resources:
-                    item = YandexItem()
+                    item = DomainItem()
                     item['domain'] = link[0]
-                    item['place_in_search'] = self.place_in_search
-                    self.place_in_search += 1
+                    item['place_in_search'] = self.place_in_search_yandex
+                    self.place_in_search_yandex += 1
                     self.resources.add(link[0])
                     url = f'https://{link[0]}'
                     yield scrapy.Request(url=url, callback=self.get_name, cb_kwargs={'item': item})

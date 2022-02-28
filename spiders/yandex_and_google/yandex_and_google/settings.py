@@ -1,4 +1,4 @@
-# Scrapy settings for yandex project
+# Scrapy settings for yandex_and_google project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -7,14 +7,14 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'yandex'
+BOT_NAME = 'yandex_and_google'
 
-SPIDER_MODULES = ['yandex.spiders']
-NEWSPIDER_MODULE = 'yandex.spiders'
+SPIDER_MODULES = ['yandex_and_google.spiders']
+NEWSPIDER_MODULE = 'yandex_and_google.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'yandex (+http://www.yourdomain.com)'
+#USER_AGENT = 'yandex_and_google (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -45,13 +45,13 @@ ROBOTSTXT_OBEY = False
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'yandex.middlewares.YandexSpiderMiddleware': 543,
+#    'yandex_and_google.middlewares.YandexSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'yandex.middlewares.YandexDownloaderMiddleware': 543,
+#    'yandex_and_google.middlewares.YandexDownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -63,7 +63,7 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    'yandex.pipelines.YandexPipeline': 300,
+#    'yandex_and_google.pipelines.YandexPipeline': 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)

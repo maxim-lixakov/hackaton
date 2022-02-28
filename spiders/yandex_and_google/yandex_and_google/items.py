@@ -6,7 +6,7 @@
 import scrapy
 
 
-class YandexItem(scrapy.Item):
+class DomainItem(scrapy.Item):
     domain = scrapy.Field()
     title = scrapy.Field()
     probable_name = scrapy.Field()
