@@ -9,7 +9,7 @@ from yandex_and_google.items import DomainItem
 
 class SearchSpider(scrapy.Spider):
     name = 'search'
-    resources = set()
+    resources = {'yandex.ru', 'www.google.com', 'music.yandex.ru', 'maps.google.com'}
     place_in_search_yandex = 1
     place_in_search_google = 1
 
