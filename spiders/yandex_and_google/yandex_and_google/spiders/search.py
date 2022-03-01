@@ -22,12 +22,13 @@ class SearchSpider(scrapy.Spider):
                     with z.open(filename) as f:
                         # test because of ban
                         # for element in re.findall('<t>\*(.+?)</t>', f.read().decode()):
-                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode())[:2]:
+                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode())[:1]:
                             text = re.sub('ГОСТ\s+\d+', '', element)
-                            yield scrapy.Request(f'https://yandex.ru/search/?text={text}', callback=self.parse)
+                            yield scrapy.Request(f'https://yandex.ru/search/?text={text}',
+                                                 callback=self.parse, cb_kwargs={'search': 'yandex'})
                             google_url = f'https://www.google.com/search?q={text}' \
                                   '&aqs=chrome..69i57j0i546l2.223j0j7&sourceid=chrome&ie=UTF-8'
-                            yield scrapy.Request(url=google_url, callback=self.parse)
+                            yield scrapy.Request(url=google_url, callback=self.parse, cb_kwargs={'search': 'google'})
 
     def parse(self, response, **kwargs):
         for resource in response.xpath('//a/@href').getall():
@@ -36,8 +37,12 @@ class SearchSpider(scrapy.Spider):
                 if link[0] not in self.resources:
                     item = DomainItem()
                     item['domain'] = link[0]
-                    item['place_in_search'] = self.place_in_search_yandex
-                    self.place_in_search_yandex += 1
+                    if kwargs['search'] == 'yandex':
+                        item['place_in_search_yandex'] = self.place_in_search_yandex
+                        self.place_in_search_yandex += 1
+                    elif kwargs['search'] == 'google':
+                        item['place_in_search_google'] = self.place_in_search_google
+                        self.place_in_search_google += 1
                     self.resources.add(link[0])
                     url = f'https://{link[0]}'
                     yield scrapy.Request(url=url, callback=self.get_name, cb_kwargs={'item': item})

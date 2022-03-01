@@ -13,10 +13,10 @@ class JuridicalInfoSpider(scrapy.Spider):
     base_url = 'https://www.rusprofile.ru/search?query={}&type=ul'
 
     def start_requests(self):
-        with open('result_of_whois.jl') as f:
+        with open('result_of_egrul.jl') as f:
             # test because of ban
             # for line in f.readlines()[:5]:
-            for line in f.readlines()[:5]:
+            for line in f.readlines():
                 line = json.loads(line)
                 inn = line['inn']
                 yield Request(
@@ -33,13 +33,13 @@ class JuridicalInfoSpider(scrapy.Spider):
         item['date_reg'] = response.xpath('//dd[@itemprop="foundingDate"]/text()').get()
         item['authorized_capital'] = response.xpath('//dd[@class="company-info__text"]'
                                                     '/span[@class="copy_target"]/text()').get()
-        item['ogrn'] = response.xpath('//span[@id="clip_ogrn"]/text()').get()
+        # item['ogrn'] = response.xpath('//span[@id="clip_ogrn"]/text()').get()
         item['activity'] = response.xpath('//div[@class="rightcol"]/'
                                           'div[@class="company-row"]/span[@class="company-info__text"]/'
                                           'text()').get()
         item['name'] = response.xpath('//h1[@itemprop="name"]/text()').get()
-        item['director'] = response.xpath('//div[@class="company-row hidden-parent"]/'
-                                          'span[@class="company-info__text"]/text()').get()
+        # item['director'] = response.xpath('//div[@class="company-row hidden-parent"]/'
+        #                                   'span[@class="company-info__text"]/text()').get()
         item['fines'] = response.xpath('//div[@class="connexion-col__title tosmall"]/text()').get()
         item['planned_checks'] = response.xpath('//a[@class="num gtm_i_1"]/text()').get()
         item['unplanned_checks'] = response.xpath('//a[@class="num gtm_i_2"]/text()').get()
