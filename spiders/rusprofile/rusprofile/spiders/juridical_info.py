@@ -1,5 +1,4 @@
 import json
-from urllib.parse import urljoin
 
 import scrapy
 from scrapy import Request
@@ -44,7 +43,10 @@ class JuridicalInfoSpider(scrapy.Spider):
         item['planned_checks'] = response.xpath('//a[@class="num gtm_i_1"]/text()').get()
         item['unplanned_checks'] = response.xpath('//a[@class="num gtm_i_2"]/text()').get()
         if response.xpath('//a[@class="num gtm_i_3"]/text()'):
-            item['infringement'] = response.xpath('//a[@class="num gtm_i_3"]/text()').getall()[0]
-            item['not_infringement'] = response.xpath('//a[@class="num gtm_i_3"]/text()').getall()[1]
-            item['unknown_infringement'] = response.xpath('//a[@class="num gtm_i_3"]/text()').getall()[1]
+            try:
+                item['infringement'] = response.xpath('//a[@class="num gtm_i_3"]/text()').getall()[0]
+                item['not_infringement'] = response.xpath('//a[@class="num gtm_i_3"]/text()').getall()[1]
+                item['unknown_infringement'] = response.xpath('//a[@class="num gtm_i_3"]/text()').getall()[2]
+            except IndexError:
+                yield item
         yield item

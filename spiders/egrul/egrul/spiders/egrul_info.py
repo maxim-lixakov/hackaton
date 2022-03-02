@@ -77,12 +77,14 @@ class EgrulInfoSpider(Spider):
                 data = {'query': item['probable_name']}
                 yield Request('https://egrul.nalog.ru/', method='POST', callback=self.parse_0_id,
                               cb_kwargs={'item': item},
-                              body=json.dumps(data), headers={'Content-Type': 'application/json'})
+                              body=json.dumps(data), headers={'Content-Type': 'application/json'},
+                              dont_filter=True)
         else:
-            if lcs(item['title'], item['full_name']):
-                item['domain_company_inn_match'] = 1
-            else:
-                item['domain_company_inn_match'] = 0
+            if 'title' in item:
+                if lcs(item['title'], item['full_name']):
+                    item['domain_company_inn_match'] = 1
+                else:
+                    item['domain_company_inn_match'] = 0
         yield item
         # yield Request(url=url, callback=self.parse,
         #               cb_kwargs={'item': kwargs['item'], 'pdf_id': pdf_id})
