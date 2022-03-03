@@ -122,4 +122,3 @@ class EgrulInfoSpider(Spider):
         company['basic_activity'] = try_to_find(
             'Сведения об основном виде деятельности .{36} Код и наименование вида деятельности \d{2}.\d{2}(.{2}\D*)',
             text).strip(r' .1-9')
-        print(company)
