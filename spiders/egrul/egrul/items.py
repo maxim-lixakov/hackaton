@@ -17,3 +17,5 @@ class EgrulItem(Item):
     ogrn = Field()
     director = Field()
     domain_company_inn_match = Field()
+    place_in_search = Field()
+    details = Field()

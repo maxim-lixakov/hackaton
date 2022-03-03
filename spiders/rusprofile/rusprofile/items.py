@@ -28,3 +28,5 @@ class RusprofileItem(Item):
     unknown_infringement = Field()
     full_name = Field()
     domain_company_inn_match = Field()
+    place_in_search = Field()
+    details = Field()

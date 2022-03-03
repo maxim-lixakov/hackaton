@@ -62,13 +62,24 @@ class EgrulInfoSpider(Spider):
                           cb_kwargs={'item': item, 'pdf_id': pdf_id})
 
     def parse_1_id(self, response, **kwargs):
-        pdf_id = response.json()['rows'][0]['t']
-        url = f'https://egrul.nalog.ru/vyp-download/{pdf_id}'
-        item = kwargs['item']
-        item['full_name'] = response.json().get('rows')[0]['n']
-        item['ogrn'] = response.json().get('rows')[0]['o']
-        item['director'] = response.json().get('rows')[0]['g']
-        item['inn'] = response.json().get('rows')[0]['i']
+        try:
+            pdf_id = response.json()['rows'][0]['t']
+            url = f'https://egrul.nalog.ru/vyp-download/{pdf_id}'
+            item = kwargs['item']
+            item['full_name'] = response.json().get('rows')[0]['n']
+            item['ogrn'] = response.json().get('rows')[0]['o']
+            item['director'] = response.json().get('rows')[0]['g']
+            item['inn'] = response.json().get('rows')[0]['i']
+        except IndexError:
+            pdf_id = response.json()['rows']['t']
+            url = f'https://egrul.nalog.ru/vyp-download/{pdf_id}'
+            item = kwargs['item']
+            item['full_name'] = response.json().get('rows')['n']
+            item['ogrn'] = response.json().get('rows')['o']
+            item['director'] = response.json().get('rows')['g']
+            item['inn'] = response.json().get('rows')['i']
+        except KeyError:
+            pass
         if 'probable_name' in item:
             if lcs(item['probable_name'], item['full_name']) > 4:
                 item['domain_company_inn_match'] = 1
