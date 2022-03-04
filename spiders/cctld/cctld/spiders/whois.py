@@ -13,7 +13,7 @@ class WhoisSpider(Spider):
     base_url = 'https://cctld.ru/tci-ripn-rdap/domain/'
 
     def start_requests(self):
-        with open('result_of_yandex_search.jl') as f:
+        with open('search.jl') as f:
             for line in f.readlines():
                 line = json.loads(line)
                 yield Request(
