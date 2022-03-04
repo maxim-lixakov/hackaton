@@ -41,8 +41,8 @@ class EgrulInfoSpider(Spider):
     def start_requests(self):
         with open('result_of_whois.jl') as f:
             # test because of ban
-            # for line in f.readlines()[:5]:
-            for line in f.readlines()[:5]:
+            # for line in f.readlines():
+            for line in f.readlines():
                 line = json.loads(line)
                 domain_inn = line['inn']
                 data = {'query': domain_inn}
@@ -92,7 +92,7 @@ class EgrulInfoSpider(Spider):
                               dont_filter=True)
         else:
             if 'title' in item:
-                if lcs(item['title'], item['full_name']):
+                if lcs(item['title'], item['full_name']) > 4:
                     item['domain_company_inn_match'] = 1
                 else:
                     item['domain_company_inn_match'] = 0

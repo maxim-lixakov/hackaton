@@ -14,7 +14,7 @@ class JuridicalInfoSpider(scrapy.Spider):
     def start_requests(self):
         with open('result_of_egrul.jl') as f:
             # test because of ban
-            # for line in f.readlines()[:5]:
+            # for line in f.readlines():
             for line in f.readlines():
                 line = json.loads(line)
                 inn = line['inn']
@@ -26,8 +26,7 @@ class JuridicalInfoSpider(scrapy.Spider):
 
     def parse(self, response, **kwargs):
         item = RusprofileItem()
-        for field in kwargs:
-            item[field] = kwargs[field]
+        for field in kwargs:            item[field] = kwargs[field]
         item['grade'] = response.xpath('//a[@class="rely-tile-badge rely-rating-positive"]/text()').get()
         item['date_reg'] = response.xpath('//dd[@itemprop="foundingDate"]/text()').get()
         item['authorized_capital'] = response.xpath('//dd[@class="company-info__text"]'

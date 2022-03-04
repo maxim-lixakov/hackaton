@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+
+  dash:
+    build:
+      context: ./rating_table
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    restart: always
+
+  crawling:
+    build:
+      context: ./crawling
+      dockerfile: Dockerfile
+    depends_on:
+      - dash
+    restart: always
+

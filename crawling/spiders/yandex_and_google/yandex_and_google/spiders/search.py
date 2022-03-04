@@ -30,7 +30,7 @@ class SearchSpider(scrapy.Spider):
                 if len(self.data[key]) == 4:
                     item = {
                         "domain": key,
-                        "place_in_search": int(max(self.data[key][1])),
+                        "place_in_search": int(min(self.data[key][1])),
                         "details": self.data[key][0],
                         "title": self.data[key][2],
                         "probable_name": self.data[key][3],
@@ -38,14 +38,14 @@ class SearchSpider(scrapy.Spider):
                 elif len(self.data[key]) == 3:
                     item = {
                         "domain": key,
-                        "place_in_search": int(max(self.data[key][1])),
+                        "place_in_search": int(min(self.data[key][1])),
                         "details": self.data[key][0],
                         "title": self.data[key][2],
                     }
                 else:
                     item = {
                         "domain": key,
-                        "place_in_search": int(max(self.data[key][1])),
+                        "place_in_search": int(min(self.data[key][1])),
                         "details": self.data[key][0],
                     }
                 f.write(json.dumps(item) + '\n')

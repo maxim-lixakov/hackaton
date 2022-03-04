@@ -1,4 +1,5 @@
 import json
+import re
 
 from scrapy import Request, Spider
 
@@ -19,16 +20,24 @@ class CompanyInfoSpider(Spider):
                     url=self.base_url.format(name),
                     callback=self.parse,
                     cb_kwargs=line,
+                    dont_filter=True,
                 )
 
     def parse(self, response, **kwargs):
         rating_page = response.xpath('//div[contains(@class, "content__right content")]').get()
         item = CompanyInfoItem()
+        for field in kwargs:
+            item[field] = kwargs[field]
         if rating_page:
             yandex_rating = response.xpath('//div[contains(@class, "RatingVendor")]/text()').get()
             working_hours = response.xpath('//span[contains(@class, "OrgContacts-ItemContent")]/text()').get()
             phone = response.xpath('//span[contains(@class, "OrgContacts-Phone")]/@aria-label').get()
             reviews = response.xpath('//div[@class="Reviews-TitleWrapper"]').get()
+            link = response.xpath('//div[contains(@class, "Link_theme_outer")]/@href').get()
+            if link:
+                link = re.findall('http[s]*:\/\/(?:www\.|)(.+?)\/', link)[0]
+                if link != item['domain']:
+                    yield item
             if reviews:
                 reviews_count = response.xpath('//div[@class="Reviews-TitleWrapper"]/'
                                                'div[contains(@class,"Reviews-Title")]/span/@aria-label').get()
@@ -39,6 +48,4 @@ class CompanyInfoSpider(Spider):
             item['yandex_rating'] = yandex_rating
             item['working_hours'] = working_hours
             item['phone'] = phone
-        for field in kwargs:
-            item[field] = kwargs[field]
         yield item

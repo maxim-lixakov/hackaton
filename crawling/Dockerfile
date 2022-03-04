@@ -9,3 +9,4 @@ RUN cd spiders/cctld && scrapy crawl whois --logfile log.log -o result_of_whois.
 RUN cd spiders/egrul && scrapy crawl egrul_info --logfile log.log -o result_of_egrul.jl && rm result_of_whois.jl && cp -R /opt/app/spiders/egrul/result_of_egrul.jl /opt/app/spiders/rusprofile/result_of_egrul.jl
 RUN cd spiders/rusprofile && scrapy crawl juridical_info --logfile log.log -o result_of_rusprofile.jl && rm result_of_egrul.jl && cp -R /opt/app/spiders/rusprofile/result_of_rusprofile.jl /opt/app/spiders/yandex_and_google/result_of_rusprofile.jl
 RUN cd spiders/yandex_and_google && scrapy crawl company_info --logfile log2.log -o final_result.jl && rm result_of_rusprofile.jl
+RUN cat /opt/app/spiders/yandex_and_google/search.jl /opt/app/spiders/cctld/result_of_whois.jl /opt/app/spiders/egrul/result_of_egrul.jl  /opt/app/spiders/rusprofile/result_of_rusprofile.jl  /opt/app/spiders/yandex_and_google/final_result.jl > /opt/app/data.jl
