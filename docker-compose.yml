@@ -16,4 +16,5 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - dash
+    restart: "no"
 
