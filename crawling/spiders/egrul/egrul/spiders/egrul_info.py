@@ -40,9 +40,7 @@ class EgrulInfoSpider(Spider):
 
     def start_requests(self):
         with open('result_of_whois.jl') as f:
-            # test because of ban
-            # for line in f.readlines()[:5]:
-            for line in f.readlines()[:5]:
+            for line in f.readlines():
                 line = json.loads(line)
                 domain_inn = line['inn']
                 data = {'query': domain_inn}
