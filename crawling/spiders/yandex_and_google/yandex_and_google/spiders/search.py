@@ -14,7 +14,7 @@ class SearchSpider(scrapy.Spider):
     resources = {'yandex.ru', 'www.google.com', 'music.yandex.ru', 'maps.google.com'}
     skip = {'yandex.ru', 'www.google.com', 'music.yandex.ru', 'maps.google.com', 'market.yandex.ru',
             'passport.yandex.ru', 'pokupki.market.yandex.ru', 'yabs.yandex.ru', 'apps.apple.com',
-            'Zaochnik.com', 'habr.com', 'emulek.github.io', 'OZON.ru'}
+            'Zaochnik.com', 'habr.com', 'emulek.github.io', 'Zaochnik.com' 'OZON.ru'}
     data = dict()
 
     @classmethod
