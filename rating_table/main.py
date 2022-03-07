@@ -18,8 +18,11 @@ try:
 except KeyError:
     pass
 
-df['yandex_rating'] = [ floater(x.replace(',', '.')) for x in df['yandex_rating']]
-df = df.drop(columns = ['reviews'])
+try:
+    df['yandex_rating'] = [ floater(x.replace(',', '.')) for x in df['yandex_rating']]
+    df = df.drop(columns = ['reviews'])
+except KeyError:
+    pass
 
 
 df.set_index('domain', inplace=True, drop=False)

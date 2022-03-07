@@ -66,24 +66,27 @@ for field in fields:
 for field in binary_fields:
     df[field] = df[field].notnull().astype(int)
 
-df['grade'] = df['grade'].notnull().astype(int)
-df['yandex_rating'] = df['yandex_rating'].fillna(0).replace(',', '.', regex=True).astype(float)
-df['place_in_search'].fillna(df['place_in_search'].max() + 1, inplace=True)
-df['place_in_search'].fillna(0, inplace=True)
+try:
+    df['grade'] = df['grade'].notnull().astype(int)
+    df['yandex_rating'] = df['yandex_rating'].fillna(0).replace(',', '.', regex=True).astype(float)
+    df['place_in_search'].fillna(df['place_in_search'].max() + 1, inplace=True)
+    df['place_in_search'].fillna(0, inplace=True)
 
-df['details_num'].fillna(0, inplace=True)  #
-df['fines'] = df['fines'].fillna(0).replace('(\D*)', '', regex=True).astype(int)  # Чем меньше тем лучше
-df['authorized_capital'] = df['authorized_capital'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
-# Не забыть поправить парсинг капитала где огромные значение
-df['reviews_count'] = df['reviews_count'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
+    df['details_num'].fillna(0, inplace=True)  #
+    df['fines'] = df['fines'].fillna(0).replace('(\D*)', '', regex=True).astype(int)  # Чем меньше тем лучше
+    df['authorized_capital'] = df['authorized_capital'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
+    # Не забыть поправить парсинг капитала где огромные значение
+    df['reviews_count'] = df['reviews_count'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
 
-df['planned_checks'] = df['planned_checks'].fillna(0).astype(int)
-df['unplanned_checks'] = df['unplanned_checks'].fillna(0).astype(int)
-df['infringement'] = df['infringement'].fillna(0).astype(int)  # Чем меньше тем лучше
-df['not_infringement'] = df['not_infringement'].fillna(0).astype(int)
-df['unknown_infringement'] = df['unknown_infringement'].fillna(0).astype(int)  # Чем меньше тем лучше
+    df['planned_checks'] = df['planned_checks'].fillna(0).astype(int)
+    df['unplanned_checks'] = df['unplanned_checks'].fillna(0).astype(int)
+    df['infringement'] = df['infringement'].fillna(0).astype(int)  # Чем меньше тем лучше
+    df['not_infringement'] = df['not_infringement'].fillna(0).astype(int)
+    df['unknown_infringement'] = df['unknown_infringement'].fillna(0).astype(int)  # Чем меньше тем лучше
 
-df['date_reg'] = pd.to_datetime(df['date_reg'].fillna(pd.to_datetime('today').date()))  # Чем меньше тем лучше
+    df['date_reg'] = pd.to_datetime(df['date_reg'].fillna(pd.to_datetime('today').date()))  # Чем меньше тем лучше
+except KeyError:
+    pass
 
 try:
     df.drop(columns=['name', 'probable_name'], inplace=True)
