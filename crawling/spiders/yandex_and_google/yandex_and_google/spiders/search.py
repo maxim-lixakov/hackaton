@@ -50,7 +50,6 @@ class SearchSpider(scrapy.Spider):
                 #         "details": self.data[key][1],
                 #         "details_num": self.data[key][0],
                 #     }
-                print(item)
                 f.write(json.dumps(item) + '\n')
 
     def start_requests(self):

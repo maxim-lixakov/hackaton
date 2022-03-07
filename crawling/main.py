@@ -65,9 +65,8 @@ list_of_details = [' Манжета М50х70 ГОСТ 22704',
                    ' ГАЙКА; ОБОЗНАЧЕНИЕ М24-6Н.8.35.0112, СТАНДАРТ ГОСТ15521, КЛАСС ПРОЧНОСТИ 8, МАТЕРИАЛ СТАЛЬ 35 ОЦИНКОВАННАЯ',
                    ' Гайка шестигранная M42х3.8 покрытие цинковое ГОСТ 5915',
                    ' БОЛТ; СТАНДАРТ ГОСТ Р ИСО4014 DIN931 (ГОСТ7798/7805), ГОЛОВКА ШЕСТИГРАННАЯ, ОБОЗНАЧЕНИЕ M16Х65, КЛАСС ПРОЧНОСТИ 8.8, МАТЕРИАЛ СТАЛЬ/ ОЦИНКОВАННАЯ']
-df1 = pd.read_json('https://s3.us-west-2.amazonaws.com/secure.notion-static.com/14f40801-51d5-471b-a82b-67b7cedef3cb/data.jl?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20220307%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20220307T104950Z&X-Amz-Expires=86400&X-Amz-Signature=4f710b91c999187d58a12901fe976e4de52f8c03b33a5cac3dfcde354a095090&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22data.jl%22&x-id=GetObject', lines = True)
-list_of_domains = df1['domain'].unique()
-good_part = df1[['domain', 'details']].drop_duplicates('domain')
+list_of_domains = df['domain'].unique()
+good_part = df[['domain', 'details']].drop_duplicates('domain')
 
 
 def binar(domain, data_details, data):
@@ -220,6 +219,8 @@ def update_bar(all_data, slctd_rows):
                       )
             for column in ['yandex_rating', 'inn', 'ogrn'] if column in dff
         ]
+
+
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', port=8050, debug=False)
