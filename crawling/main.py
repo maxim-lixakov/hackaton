@@ -8,7 +8,7 @@ import plotly.express as px
 from preprocessing import df_initial
 
 
-df = df_initial.fillna('')
+df = df_initial.fillna('').drop_duplicates('domain')
 
 
 def floater(x):
@@ -215,7 +215,8 @@ def update_bar(all_data, slctd_rows):
                           x="domain",
                           y=column
                       ).update_layout(showlegend=False, xaxis={'categoryorder': 'total ascending'})
-                      .update_traces(marker_color=colors).update_yaxes(title='y', visible=False, showticklabels=False)
+                      .update_traces(marker_color=colors).update_yaxes(title=column,
+                                                                       visible=True, showticklabels=False)
                       )
             for column in ['rating', 'rating_2'] if column in dff
         ]
