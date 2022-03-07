@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def range_values(values, reverse=True):
-    values = [0 if el is None else el for el in values]  # comment in future
+    values = [0 if el is None else el for el in values]
 
     dict = {}
     place = 1
@@ -36,20 +36,45 @@ def get_ratings(rangingFields, grades, yandexRatings, binaryFields, alpha_rf=100
         for el in binaryFields:
             company_binaryFields.append(el[i])
 
-        rf = iter(rangingFields)
         grades = iter(grades)
         yandexRatings = iter(yandexRatings)
-        rating = alpha_rf * sum([max(next(rf)) - crf for crf in company_rangingFields]) + alpha_grade * next(
+        rating = alpha_rf * sum([crf for crf in company_rangingFields]) + alpha_grade * next(
             grades) + alpha_yr * next(yandexRatings) + alpha_bf * sum(company_binaryFields)
         ratings.append(rating)
     return ratings
 
 
-with open('data.jl', 'r') as file:
+def get_ratings_with_weights(rangingFields, grades, yandexRatings, binaryFields, weights, alpha_grade=15, alpha_yr=25,
+                             alpha_bf=15):
+    # rangingFields - список списков, где каждый список содержит ранги поставщиков по данному полю
+    # binaryFields - аналогично
+    ratings = []
+    for i in range(len(rangingFields[0])):  # количество поставщиков
+
+        company_rangingFields = []
+        for el in rangingFields:
+            company_rangingFields.append(el[i])
+        for j in range(len(company_rangingFields)):
+            company_rangingFields[j] *= (sum(weights) - weights[j])
+
+        company_binaryFields = []
+        for el in binaryFields:
+            company_binaryFields.append(el[i])
+
+        grades = iter(grades)
+        yandexRatings = iter(yandexRatings)
+        rating = sum([crf for crf in company_rangingFields]) + alpha_grade * next(
+            grades) + alpha_yr * next(yandexRatings) + alpha_bf * sum(company_binaryFields)
+        ratings.append(rating)
+    return ratings
+
+
+with open('best_res.jl', 'r') as file:
     dicts = []
     for line in file.readlines():
         dicts.append(json.loads(re.findall(r'({.*?})', line)[0]))
     df = pd.DataFrame.from_records(dicts)
+    df.drop_duplicates(subset='domain', keep='last', inplace=True)
 
 formula_fields = ['grade', 'yandex_rating']
 binary_fields = ['domain', 'title', 'inn', 'full_name', 'ogrn', 'phone', 'working_hours', 'director',
@@ -66,27 +91,23 @@ for field in fields:
 for field in binary_fields:
     df[field] = df[field].notnull().astype(int)
 
-try:
-    df['grade'] = df['grade'].notnull().astype(int)
-    df['yandex_rating'] = df['yandex_rating'].fillna(0).replace(',', '.', regex=True).astype(float)
-    df['place_in_search'].fillna(df['place_in_search'].max() + 1, inplace=True)
-    df['place_in_search'].fillna(0, inplace=True)
+df['grade'] = df['grade'].notnull().astype(int)
+df['yandex_rating'] = df['yandex_rating'].fillna(0).replace(',', '.', regex=True).astype(float)
+df['place_in_search'].fillna(df['place_in_search'].max() + 1, inplace=True)
+df['place_in_search'].fillna(0, inplace=True)
 
-    df['details_num'].fillna(0, inplace=True)  #
-    df['fines'] = df['fines'].fillna(0).replace('(\D*)', '', regex=True).astype(int)  # Чем меньше тем лучше
-    df['authorized_capital'] = df['authorized_capital'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
-    # Не забыть поправить парсинг капитала где огромные значение
-    df['reviews_count'] = df['reviews_count'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
+df['details_num'].fillna(0, inplace=True)
+df['fines'] = df['fines'].fillna(0).replace('(\D*)', '', regex=True).astype(int)  # Чем меньше тем лучше
+df['authorized_capital'] = df['authorized_capital'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
+df['reviews_count'] = df['reviews_count'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
 
-    df['planned_checks'] = df['planned_checks'].fillna(0).astype(int)
-    df['unplanned_checks'] = df['unplanned_checks'].fillna(0).astype(int)
-    df['infringement'] = df['infringement'].fillna(0).astype(int)  # Чем меньше тем лучше
-    df['not_infringement'] = df['not_infringement'].fillna(0).astype(int)
-    df['unknown_infringement'] = df['unknown_infringement'].fillna(0).astype(int)  # Чем меньше тем лучше
+df['planned_checks'] = df['planned_checks'].fillna(0).astype(int)
+df['unplanned_checks'] = df['unplanned_checks'].fillna(0).astype(int)
+df['infringement'] = df['infringement'].fillna(0).astype(int)  # Чем меньше тем лучше
+df['not_infringement'] = df['not_infringement'].fillna(0).astype(int)
+df['unknown_infringement'] = df['unknown_infringement'].fillna(0).astype(int)  # Чем меньше тем лучше
 
-    df['date_reg'] = pd.to_datetime(df['date_reg'].fillna(pd.to_datetime('today').date()))  # Чем меньше тем лучше
-except KeyError:
-    pass
+df['date_reg'] = pd.to_datetime(df['date_reg'].fillna(pd.to_datetime('today').date()))  # Чем меньше тем лучше
 
 try:
     df.drop(columns=['name', 'probable_name'], inplace=True)
@@ -105,12 +126,26 @@ yandexRatings = df['yandex_rating']
 binaryFields = [df[column_name] for column_name in binary_fields]
 
 ratings = get_ratings(rangingFields, grades, yandexRatings, binaryFields)
+max_rating = max(ratings)
+ratings_norm = [rating / max_rating for rating in ratings]
 
-with open('data.jl', 'r') as file:
+# веса для полей ranging_fields + ranging_fields_reverse_false
+# ['place_in_search', 'details', 'authorized_capital', 'planned_checks', 'unplanned_checks',
+#                   'reviews_count', 'not_infringement'] +
+# ['date_reg', 'fines', 'infringement', 'unknown_infringement']
+weights = [15, 35, 5, 2, 2, 20, 2, 10, 5, 2, 2]
+
+ratings_ww = get_ratings_with_weights(rangingFields, grades, yandexRatings, binaryFields, weights)
+max_rating_ww = max(ratings_ww)
+ratings_ww_norm = [rating / max_rating_ww for rating in ratings_ww]
+
+with open('best_res.jl', 'r') as file:
     dicts = []
     for line in file.readlines():
         dicts.append(json.loads(re.findall(r'({.*?})', line)[0]))
     df_initial = pd.DataFrame.from_records(dicts)
+    df_initial.drop_duplicates(subset='domain', keep='last', inplace=True)
 
-df_initial['rating'] = ratings
+df_initial['rating'] = ratings_norm
+df_initial['rating_2'] = ratings_ww_norm
 df_initial.to_csv('data.csv', index=False)
