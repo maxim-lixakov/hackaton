@@ -54,7 +54,7 @@ with open('data.jl', 'r') as file:
 formula_fields = ['grade', 'yandex_rating']
 binary_fields = ['domain', 'title', 'inn', 'full_name', 'ogrn', 'phone', 'working_hours', 'director',
                  'domain_company_inn_match', 'activity', 'reviews']
-ranging_fields = ['place_in_search', 'details', 'authorized_capital', 'planned_checks', 'unplanned_checks',
+ranging_fields = ['place_in_search', 'details_num', 'authorized_capital', 'planned_checks', 'unplanned_checks',
                   'reviews_count', 'not_infringement']
 ranging_fields_reverse_false = ['date_reg', 'fines', 'infringement', 'unknown_infringement']
 fields = formula_fields + binary_fields + ranging_fields + ranging_fields_reverse_false
@@ -71,7 +71,7 @@ df['yandex_rating'] = df['yandex_rating'].fillna(0).replace(',', '.', regex=True
 df['place_in_search'].fillna(df['place_in_search'].max() + 1, inplace=True)
 df['place_in_search'].fillna(0, inplace=True)
 
-df['details'].fillna(0, inplace=True)  #
+df['details_num'].fillna(0, inplace=True)  #
 df['fines'] = df['fines'].fillna(0).replace('(\D*)', '', regex=True).astype(int)  # Чем меньше тем лучше
 df['authorized_capital'] = df['authorized_capital'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
 # Не забыть поправить парсинг капитала где огромные значение

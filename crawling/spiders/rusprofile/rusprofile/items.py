@@ -30,3 +30,4 @@ class RusprofileItem(Item):
     domain_company_inn_match = Field()
     place_in_search = Field()
     details = Field()
+    details_num = Field()

@@ -14,7 +14,7 @@ class SearchSpider(scrapy.Spider):
     resources = {'yandex.ru', 'www.google.com', 'music.yandex.ru', 'maps.google.com'}
     skip = {'yandex.ru', 'www.google.com', 'music.yandex.ru', 'maps.google.com', 'market.yandex.ru',
             'passport.yandex.ru', 'pokupki.market.yandex.ru', 'yabs.yandex.ru', 'apps.apple.com',
-            'Zaochnik.com', 'habr.com', 'emulek.github.io', 'Zaochnik.com' 'OZON.ru'}
+            'Zaochnik.com', 'habr.com', 'emulek.github.io', 'Zaochnik.com' 'OZON.ru', 'appgallery.huawei.com'}
     data = dict()
 
     @classmethod
@@ -24,30 +24,33 @@ class SearchSpider(scrapy.Spider):
         return spider
 
     def spider_closed(self, spider):
-        print(self.data)
         with open('search.jl', 'a') as f:
             for key in self.data:
-                if len(self.data[key]) == 4:
+                if len(self.data[key]) == 5:
                     item = {
                         "domain": key,
                         "place_in_search": int(min(self.data[key][1])),
-                        "details": self.data[key][0],
-                        "title": self.data[key][2],
-                        "probable_name": self.data[key][3],
+                        "details_num": self.data[key][0],
+                        "details": self.data[key][2],
+                        "title": self.data[key][3],
+                        "probable_name": self.data[key][4],
                     }
-                elif len(self.data[key]) == 3:
+                elif len(self.data[key]) == 4:
                     item = {
                         "domain": key,
                         "place_in_search": int(min(self.data[key][1])),
-                        "details": self.data[key][0],
-                        "title": self.data[key][2],
+                        "details_num": self.data[key][0],
+                        "details": self.data[key][2],
+                        "title": self.data[key][3],
                     }
-                else:
-                    item = {
-                        "domain": key,
-                        "place_in_search": int(min(self.data[key][1])),
-                        "details": self.data[key][0],
-                    }
+                # else:
+                #     item = {
+                #         "domain": key,
+                #         "place_in_search": int(min(self.data[key][1])),
+                #         "details": self.data[key][1],
+                #         "details_num": self.data[key][0],
+                #     }
+                print(item)
                 f.write(json.dumps(item) + '\n')
 
     def start_requests(self):
@@ -59,16 +62,19 @@ class SearchSpider(scrapy.Spider):
                     with z.open(filename) as f:
                         # test because of ban
                         # for element in re.findall('<t>\*(.+?)</t>', f.read().decode()):
-                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode()):
+                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode())[:2]:
                             text = re.sub('ГОСТ\s+\d+', '', element)
                             yield scrapy.Request(f'https://yandex.ru/search/?text={text}',
-                                                 callback=self.parse, cb_kwargs={'search': 'yandex'})
+                                                 callback=self.parse, cb_kwargs={'search': 'yandex',
+                                                                                 'detail': element})
                             google_url = f'https://www.google.com/search?q={text}' \
                                   '&aqs=chrome..69i57j0i546l2.223j0j7&sourceid=chrome&ie=UTF-8'
-                            yield scrapy.Request(url=google_url, callback=self.parse, cb_kwargs={'search': 'google'})
+                            yield scrapy.Request(url=google_url, callback=self.parse, cb_kwargs={'search': 'google',
+                                                                                                 'detail': element})
                             commercial_search = 'https://yandex.ru/search/direct?text={}&filters_docs=direct_cm&lr=213'
                             yield scrapy.Request(url=commercial_search,
-                                                 callback=self.parse, cb_kwargs={'search': 'com'})
+                                                 callback=self.parse, cb_kwargs={'search': 'com',
+                                                                                 'detail': element})
 
     def parse(self, response, **kwargs):
         place_in_search_yandex = 1
@@ -78,34 +84,44 @@ class SearchSpider(scrapy.Spider):
             if link:
                 if 'googl' in link[0] or 'yand' in link[0]:
                     continue
-                if link[0] not in self.resources:
+                if link[0] not in self.resources and link[0] not in self.skip:
                     item = DomainItem()
                     item['domain'] = link[0]
                     if kwargs['search'] == 'yandex':
-                        self.data[link[0]] = [1, [place_in_search_yandex]]
+                        self.data[link[0]] = [1, [place_in_search_yandex], [kwargs['detail']]]
                         item['place_in_search_yandex'] = place_in_search_yandex
                         item['commercial_search'] = 0
                         place_in_search_yandex += 1
                     elif kwargs['search'] == 'google':
-                        self.data[link[0]] = [1, [place_in_search_google]]
+                        self.data[link[0]] = [1, [place_in_search_google], [kwargs['detail']]]
                         item['place_in_search_google'] = place_in_search_google
                         item['commercial_search'] = 0
                         place_in_search_google += 1
                     else:
-                        self.data[link[0]] = [1, [5]]
+                        self.data[link[0]] = [1, [place_in_search_yandex], [kwargs['detail']]]
                         item['commercial_search'] = 1
                     self.resources.add(link[0])
                     url = f'https://{link[0]}'
                     yield scrapy.Request(url=url, callback=self.get_name, cb_kwargs={'item': item})
                 elif link[0] in self.resources and link[0] not in self.skip:
-                    if kwargs['search'] == 'yandex':
-                        self.data[link[0]][0] += 1
-                        self.data[link[0]][1].append(place_in_search_yandex)
-                    if kwargs['search'] == 'google':
-                        self.data[link[0]][0] += 1
-                        self.data[link[0]][1].append(place_in_search_google)
-                    place_in_search_yandex += 1
-                    place_in_search_google += 1
+                    if kwargs['detail'] not in self.data[link[0]][2]:
+                        if kwargs['search'] == 'yandex':
+                            self.data[link[0]][0] += 1
+                            self.data[link[0]][1].append(place_in_search_yandex)
+                            self.data[link[0]][2].append(kwargs['detail'])
+                            place_in_search_yandex += 1
+                        if kwargs['search'] == 'google':
+                            self.data[link[0]][0] += 1
+                            self.data[link[0]][1].append(place_in_search_google)
+                            self.data[link[0]][2].append(kwargs['detail'])
+                            place_in_search_google += 1
+                    else:
+                        if kwargs['search'] == 'yandex':
+                            self.data[link[0]][1].append(place_in_search_yandex)
+                            place_in_search_yandex += 1
+                        if kwargs['search'] == 'google':
+                            self.data[link[0]][1].append(place_in_search_google)
+                            place_in_search_google += 1
 
     def get_name(self, response, **kwargs):
         item = kwargs['item']

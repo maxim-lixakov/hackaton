@@ -20,5 +20,5 @@ services:
       - "8050:8050"
     depends_on:
       - dash
-    restart: always
+    restart: "no"
 
