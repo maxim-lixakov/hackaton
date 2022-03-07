@@ -215,7 +215,7 @@ def update_bar(all_data, slctd_rows):
                           x="domain",
                           y=column
                       ).update_layout(showlegend=False, xaxis={'categoryorder': 'total ascending'})
-                      .update_traces(marker_color=colors)
+                      .update_traces(marker_color=colors).update_yaxes(title='y', visible=False, showticklabels=False)
                       )
             for column in ['yandex_rating', 'inn', 'ogrn'] if column in dff
         ]
