@@ -62,7 +62,7 @@ class SearchSpider(scrapy.Spider):
                     with z.open(filename) as f:
                         # test because of ban
                         # for element in re.findall('<t>\*(.+?)</t>', f.read().decode()):
-                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode())[:2]:
+                        for element in re.findall('<t>\*(.+?)</t>', f.read().decode()):
                             text = re.sub('ГОСТ\s+\d+', '', element)
                             yield scrapy.Request(f'https://yandex.ru/search/?text={text}',
                                                  callback=self.parse, cb_kwargs={'search': 'yandex',
