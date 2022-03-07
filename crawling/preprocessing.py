@@ -98,7 +98,7 @@ df['place_in_search'].fillna(0, inplace=True)
 
 df['details_num'].fillna(0, inplace=True)
 df['fines'] = df['fines'].fillna(0).replace('(\D*)', '', regex=True).astype(int)  # Чем меньше тем лучше
-df['authorized_capital'] = df['authorized_capital'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
+df['authorized_capital'] = df['authorized_capital'].fillna(10000).replace('(\D*)', '', regex=True).astype(int)
 df['reviews_count'] = df['reviews_count'].fillna(0).replace('(\D*)', '', regex=True).astype(int)
 
 df['planned_checks'] = df['planned_checks'].fillna(0).astype(int)
