@@ -103,13 +103,12 @@ table_1 = dash_table.DataTable(
                              'textOverflow': 'ellipsis', 'maxWidth': 0,
 
                              'if': {'row_index': 'even'},
-                             'backgroundColor': 'rgb(220, 220, 220)',
+                             'backgroundColor': 'rgb(176, 196, 222)',
                              # 'color': 'white'
                              } ],
     style_data={
         'whiteSpace': 'normal',
         'height': 'auto',
-        'backgroundColor': 'rgb(150, 150, 150)',
         #'border': '1px solid black'
     },
     data=df.to_dict('records'),
@@ -152,13 +151,12 @@ table_2 = dash_table.DataTable(
         for i in Table.columns
     ],
     style_data_conditional=[{ 'if': {'row_index': 'even'},
-                              'backgroundColor': 'rgb(220, 220, 220)',
+                              'backgroundColor': 'rgb(176, 196, 222)',
                               # 'color': 'white'
                               } ],
     style_data={
         'whiteSpace': 'normal',
         'height': 'auto',
-        'backgroundColor': 'rgb(150, 150, 150)',
         #'border': '1px solid black'
     },
     data=Table.to_dict('records'),
@@ -207,7 +205,7 @@ app.layout = html.Div([ html.Div([table_1], style={'display': 'inline-block'}),
 
 def update_bar(all_data, slctd_rows):
     dff = pd.DataFrame(all_data)
-    colors = ['#7FDBFF' if i in slctd_rows else '#0074D9'
+    colors = ['#00008B' if i in slctd_rows else '#B0C4DE'
               for i in range(len(dff))]
     if "domain" in dff:
         return [
