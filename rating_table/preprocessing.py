@@ -4,7 +4,7 @@ import json
 import pandas as pd
 
 
-def range_values(values, reverse=True):
+def range_values(values, reverse=False):
     values = [0 if el is None else el for el in values]
 
     dict = {}
@@ -55,7 +55,7 @@ def get_ratings_with_weights(rangingFields, grades, yandexRatings, binaryFields,
         for el in rangingFields:
             company_rangingFields.append(el[i])
         for j in range(len(company_rangingFields)):
-            company_rangingFields[j] *= (sum(weights) - weights[j])
+            company_rangingFields[j] *= weights[j]
 
         company_binaryFields = []
         for el in binaryFields:
@@ -83,8 +83,8 @@ binary_fields = ['domain', 'title', 'inn', 'full_name', 'ogrn', 'phone', 'workin
                  'domain_company_inn_match', 'activity', 'reviews']
 ranging_fields = ['place_in_search', 'details_num', 'authorized_capital', 'planned_checks', 'unplanned_checks',
                   'reviews_count', 'not_infringement']
-ranging_fields_reverse_false = ['date_reg', 'fines', 'infringement', 'unknown_infringement']
-fields = formula_fields + binary_fields + ranging_fields + ranging_fields_reverse_false
+ranging_fields_reverse_true = ['date_reg', 'fines', 'infringement', 'unknown_infringement']
+fields = formula_fields + binary_fields + ranging_fields + ranging_fields_reverse_true
 
 for field in fields:
     if field not in df.columns:
@@ -117,9 +117,9 @@ except KeyError:
     pass
 
 rangingFields_temp1 = [df[column_name] for column_name in ranging_fields]
-rangingFields_temp2 = [df[column_name] for column_name in ranging_fields_reverse_false]
+rangingFields_temp2 = [df[column_name] for column_name in ranging_fields_reverse_true]
 rangingFields1 = [range_values(field) for field in rangingFields_temp1]
-rangingFields2 = [range_values(field, reverse=False) for field in rangingFields_temp2]
+rangingFields2 = [range_values(field, reverse=True) for field in rangingFields_temp2]
 rangingFields = rangingFields1 + rangingFields2
 
 grades = df['grade']
@@ -131,11 +131,11 @@ ratings = get_ratings(rangingFields, grades, yandexRatings, binaryFields)
 max_rating = max(ratings)
 ratings_norm = [rating / max_rating for rating in ratings]
 
-# веса для полей ranging_fields + ranging_fields_reverse_false
+# веса для полей ranging_fields + ranging_fields_reverse_true
 # ['place_in_search', 'details_num', 'authorized_capital', 'planned_checks', 'unplanned_checks',
 #                   'reviews_count', 'not_infringement'] +
 # ['date_reg', 'fines', 'infringement', 'unknown_infringement']
-weights = [15, 35, 5, 2, 2, 20, 2, 10, 5, 2, 2]
+weights = [15, 45, 5, 2, 2, 20, 2, 10, 5, 2, 2]
 
 ratings_ww = get_ratings_with_weights(rangingFields, grades, yandexRatings, binaryFields, weights)
 max_rating_ww = max(ratings_ww)
