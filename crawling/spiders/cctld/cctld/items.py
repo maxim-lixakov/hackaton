@@ -10,4 +10,5 @@ class DomainItem(Item):
     probable_name = Field()
     place_in_search = Field()
     details = Field()
+    details_num = Field()
 

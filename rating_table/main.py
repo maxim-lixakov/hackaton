@@ -7,8 +7,8 @@ from preprocessing import df_initial
 
 
 df = df_initial.fillna('')
-df['Reviews'] = ['\n'.join(i) for i in df['reviews']]
-df = df.drop(columns = ['reviews'])
+# df['Reviews'] = ['\n'.join(i) for i in df['reviews']]
+# df = df.drop(columns = ['reviews'])
 df.set_index('domain', inplace=True, drop=False)
 
 app = dash.Dash(__name__, prevent_initial_callbacks=True)

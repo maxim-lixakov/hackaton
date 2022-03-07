@@ -12,4 +12,5 @@ cd spiders/yandex_and_google && scrapy crawl company_info --logfile log2.log -o 
 echo YANDEX SCRAPING ENDED
 cat /opt/app/spiders/yandex_and_google/search.jl /opt/app/spiders/cctld/result_of_whois.jl /opt/app/spiders/egrul/result_of_egrul.jl  /opt/app/spiders/rusprofile/result_of_rusprofile.jl  /opt/app/spiders/yandex_and_google/final_result.jl > /opt/app/data.jl
 python preprocessing.py
+echo PREPROCESSING ENDED
 python main.py
