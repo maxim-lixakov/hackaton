@@ -4,7 +4,7 @@ import json
 import pandas as pd
 
 
-def range_values(values, reverse=True):
+def range_values(values, reverse=False):
     values = [0 if el is None else el for el in values]
 
     dict = {}
@@ -33,8 +33,8 @@ def get_ratings(rangingFields, grades, yandexRatings, binaryFields, alpha_rf=100
             company_rangingFields.append(el[i])
 
         company_binaryFields = []
-        # for el in binaryFields:
-        #     company_binaryFields.append(el[i])
+        for el in binaryFields:
+            company_binaryFields.append(el[i])
 
         grades = iter(grades)
         yandexRatings = iter(yandexRatings)
@@ -55,11 +55,11 @@ def get_ratings_with_weights(rangingFields, grades, yandexRatings, binaryFields,
         for el in rangingFields:
             company_rangingFields.append(el[i])
         for j in range(len(company_rangingFields)):
-            company_rangingFields[j] *= (sum(weights) - weights[j])
+            company_rangingFields[j] *= weights[j]
 
         company_binaryFields = []
         for el in binaryFields:
-            company_binaryFields.append(el)
+            company_binaryFields.append(el[i])
 
         grades = iter(grades)
         yandexRatings = iter(yandexRatings)
@@ -74,15 +74,17 @@ with open('data.jl', 'r') as file:
     for line in file.readlines():
         dicts.append(json.loads(re.findall(r'({.*?})', line)[0]))
     df = pd.DataFrame.from_records(dicts)
-    # df.drop_duplicates(subset='domain', keep='last', inplace=True)
+    df.drop_duplicates(subset='domain', keep='last')
+df.to_csv('data_temp.csv', index=False)
+df = pd.read_csv('data_temp.csv')
 
 formula_fields = ['grade', 'yandex_rating']
 binary_fields = ['domain', 'title', 'inn', 'full_name', 'ogrn', 'phone', 'working_hours', 'director',
                  'domain_company_inn_match', 'activity', 'reviews']
 ranging_fields = ['place_in_search', 'details_num', 'authorized_capital', 'planned_checks', 'unplanned_checks',
                   'reviews_count', 'not_infringement']
-ranging_fields_reverse_false = ['date_reg', 'fines', 'infringement', 'unknown_infringement']
-fields = formula_fields + binary_fields + ranging_fields + ranging_fields_reverse_false
+ranging_fields_reverse_true = ['date_reg', 'fines', 'infringement', 'unknown_infringement']
+fields = formula_fields + binary_fields + ranging_fields + ranging_fields_reverse_true
 
 for field in fields:
     if field not in df.columns:
@@ -115,9 +117,9 @@ except KeyError:
     pass
 
 rangingFields_temp1 = [df[column_name] for column_name in ranging_fields]
-rangingFields_temp2 = [df[column_name] for column_name in ranging_fields_reverse_false]
+rangingFields_temp2 = [df[column_name] for column_name in ranging_fields_reverse_true]
 rangingFields1 = [range_values(field) for field in rangingFields_temp1]
-rangingFields2 = [range_values(field, reverse=False) for field in rangingFields_temp2]
+rangingFields2 = [range_values(field, reverse=True) for field in rangingFields_temp2]
 rangingFields = rangingFields1 + rangingFields2
 
 grades = df['grade']
@@ -129,23 +131,25 @@ ratings = get_ratings(rangingFields, grades, yandexRatings, binaryFields)
 max_rating = max(ratings)
 ratings_norm = [rating / max_rating for rating in ratings]
 
-# веса для полей ranging_fields + ranging_fields_reverse_false
-# ['place_in_search', 'details', 'authorized_capital', 'planned_checks', 'unplanned_checks',
+# веса для полей ranging_fields + ranging_fields_reverse_true
+# ['place_in_search', 'details_num', 'authorized_capital', 'planned_checks', 'unplanned_checks',
 #                   'reviews_count', 'not_infringement'] +
 # ['date_reg', 'fines', 'infringement', 'unknown_infringement']
-weights = [15, 35, 5, 2, 2, 20, 2, 10, 5, 2, 2]
+weights = [15, 45, 5, 2, 2, 20, 2, 10, 5, 2, 2]
 
-# ratings_ww = get_ratings_with_weights(rangingFields, grades, yandexRatings, binaryFields, weights)
-# max_rating_ww = max(ratings_ww)
-# ratings_ww_norm = [rating / max_rating_ww for rating in ratings_ww]
+ratings_ww = get_ratings_with_weights(rangingFields, grades, yandexRatings, binaryFields, weights)
+max_rating_ww = max(ratings_ww)
+ratings_ww_norm = [rating / max_rating_ww for rating in ratings_ww]
 
 with open('data.jl', 'r') as file:
     dicts = []
     for line in file.readlines():
         dicts.append(json.loads(re.findall(r'({.*?})', line)[0]))
     df_initial = pd.DataFrame.from_records(dicts)
-    # df_initial.drop_duplicates(subset='domain', keep='last', inplace=True)
+    df_initial.drop_duplicates(subset='domain', keep='last')
+df_initial.to_csv('data_temp.csv', index=False)
+df_initial = pd.read_csv('data_temp.csv')
 
 df_initial['rating'] = ratings_norm
-df_initial['rating_2'] = ratings
+df_initial['rating_2'] = ratings_ww_norm
 df_initial.to_csv('data.csv', index=False)
