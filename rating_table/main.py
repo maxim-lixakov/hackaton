@@ -7,7 +7,7 @@ import plotly.express as px
 
 from preprocessing import df_initial
 
-
+df_initial.sort_values(by=['rating'], inplace=True, ascending=False)
 df = df_initial.fillna('').drop_duplicates('domain')
 
 
@@ -19,7 +19,7 @@ def floater(x):
 
 
 try:
-    df['Reviews'] = ["\n".join(i) for i in df['reviews']]
+    df['Reviews'] = ["".join(i) for i in df['reviews']]
     df['yandex_rating'] = [ floater(x.replace(',', '.')) for x in df['yandex_rating']]
     df = df.drop(columns = ['reviews'])
 except KeyError:
