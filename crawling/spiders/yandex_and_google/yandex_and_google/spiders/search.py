@@ -33,7 +33,9 @@ class SearchSpider(scrapy.Spider):
                         "details_num": self.data[key][0],
                         "details": self.data[key][2],
                         "title": self.data[key][3],
-                        "probable_name": self.data[key][4],
+                        "probable_name": self.data[key][4].get('name'),
+                        "email": self.data[key][4].get('email'),
+                        "phone": self.data[key][4].get('phone'),
                     }
                 elif len(self.data[key]) == 4:
                     item = {
@@ -43,13 +45,13 @@ class SearchSpider(scrapy.Spider):
                         "details": self.data[key][2],
                         "title": self.data[key][3],
                     }
-                # else:
-                #     item = {
-                #         "domain": key,
-                #         "place_in_search": int(min(self.data[key][1])),
-                #         "details": self.data[key][1],
-                #         "details_num": self.data[key][0],
-                #     }
+                else:
+                    item = {
+                        "domain": key,
+                        "place_in_search": int(min(self.data[key][1])),
+                        "details": self.data[key][2],
+                        "details_num": self.data[key][0],
+                    }
                 f.write(json.dumps(item) + '\n')
 
     def start_requests(self):
@@ -129,5 +131,61 @@ class SearchSpider(scrapy.Spider):
         self.data[item['domain']].append(response.xpath('//title/text()').get())
         if probable_name:
             item['probable_name'] = probable_name[0]
-            self.data[item['domain']].append(re.findall('(["]*ООО["]*\s[A-zА-Яа-я()]+)', response.text)[0])
+        for endpoint in ['contacts/',
+                         'kontacts/',
+                         'page/contacts/',
+                         'company/coordinates',
+                         'contact/',
+                         'contakty/',
+                         'contacts/',
+                         'contacts.html/',
+                         'kontakty/',
+                         'kontakti/',
+                         'address/',
+                         'contacts/head-office/',
+                         'content/6-kontakty/',
+                         'index.php?route=content/contact/',
+                         'index.php/ru/kontakty/',
+                         'content/6-kontakt-info/',
+                         'content/kontakt-info/',
+                         'about/contacts/',
+                         'contact-us/',
+                         'contacts/russia/',
+                         'info/contacts/',
+                         'Contacts.aspx/',
+                         'kontakty/ofis/',
+                         'контакт/',
+                         'proezd/',
+                         'about/kontakty/',
+                         'content/contacts/',
+                         'adres/',
+                         'карта_и_контакты/',
+                         'index/kontakty/0-4/',
+                         'company/contacts/',
+                         'pages/contact-us/',
+                         'kontakty.html/',
+                         'nashi_kontaki/',
+                         'контакты/',
+                         ]:
+            if len(self.data[item['domain']]) > 4:
+                break
+            url = f'https://{item["domain"]}/{endpoint}'
+            yield scrapy.Request(url=url, callback=self.parse_contacts, cb_kwargs={'item': item})
+
+    def parse_contacts(self, response, **kwargs):
+        item = kwargs['item']
+        emails = re.findall('(\w*@\w*\.\w*)', response.text)
+        phones = re.findall('([8|\+7)-?]?\[?\d{3}\]?-?\d{1}-?\d{1}-?\d{1}-?\d{1}-?\d{1}-?\d{1}-?\d{1})',
+                            response.text)
+        name = None
+        if len(re.findall('(["]*ООО["]*\s[A-zА-Яа-я()]+)', response.text)) > 0:
+            name = re.findall('(["]*ООО["]*\s[A-zА-Яа-я()]+)', response.text)[0]
+        email = None
+        if len(emails) > 0:
+            email = emails[len(emails) // 2]
+        phone = None
+        if len(phones) > 0:
+            phone = phones[len(phones) // 2]
+        data = {'email': email, 'phone': phone, 'name': name}
+        self.data[item['domain']].append(data)
         yield item
