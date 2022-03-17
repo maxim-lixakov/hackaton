@@ -14,6 +14,8 @@ class DomainItem(scrapy.Item):
     place_in_search_google = scrapy.Field()
     commercial_search = scrapy.Field()
     details_num = scrapy.Field()
+    phone = scrapy.Field()
+    email = scrapy.Field()
 
 class CompanyInfoItem(scrapy.Item):
     domain = Field()
@@ -39,7 +41,8 @@ class CompanyInfoItem(scrapy.Item):
     domain_company_inn_match = Field()
     yandex_rating = Field()
     working_hours = Field()
-    phone = Field()
+    phone = scrapy.Field()
+    email = scrapy.Field()
     reviews_count = Field()
     reviews = Field()
     place_in_search = Field()

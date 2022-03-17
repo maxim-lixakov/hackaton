@@ -11,4 +11,6 @@ class DomainItem(Item):
     place_in_search = Field()
     details = Field()
     details_num = Field()
+    phone = Field()
+    email = Field()
 
