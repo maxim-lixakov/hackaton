@@ -93,4 +93,4 @@ df_initial = df_initial.drop_duplicates(subset='domain', keep='last')
 df_initial['rating'] = main()
 #normalization
 x = (max(df_initial['rating']) - (df_initial['rating'] + 1000))/max(df_initial['rating'])
-df_initial['rating'] = x_normed = x / x.max(axis=0)
+df_initial['rating'] = [round(rating, 3) for rating in  x / x.max(axis=0)]
