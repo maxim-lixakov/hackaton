@@ -15,19 +15,22 @@ class CompanyInfoSpider(Spider):
         with open('result_of_rusprofile.jl') as f:
             for line in f.readlines():
                 line = json.loads(line)
+                item = CompanyInfoItem()
+                for field in line:
+                    item[field] = line[field]
                 name = line['full_name']
                 yield Request(
                     url=self.base_url.format(name),
                     callback=self.parse,
-                    cb_kwargs=line,
+                    cb_kwargs={'item': item},
                     dont_filter=True,
                 )
 
     def parse(self, response, **kwargs):
+        item = kwargs['item']
+        if 'captcha' in response.url:
+            yield item
         rating_page = response.xpath('//div[contains(@class, "content__right content")]').get()
-        item = CompanyInfoItem()
-        for field in kwargs:
-            item[field] = kwargs[field]
         if rating_page:
             yandex_rating = response.xpath('//div[contains(@class, "RatingVendor")]/text()').get()
             working_hours = response.xpath('//span[contains(@class, "OrgContacts-ItemContent")]/text()').get()
