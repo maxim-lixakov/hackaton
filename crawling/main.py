@@ -119,7 +119,9 @@ table_1 = dash_table.DataTable(
     column_selectable=False, # single or none
     row_selectable='multi', # single or multi
     row_deletable=True, #
-    hidden_columns=['working_hours', 'phone', 'place_in_search', 'details', 'title',
+    style_table={'height': '500px', 'overflowY': 'auto', 'minWidth': '100%'},
+    fixed_rows={'headers': True, 'data': 0},
+    hidden_columns=['working_hours', 'place_in_search', 'details', 'title',
                     'ogrn', 'domain_company_inn_match', 'authorized_capital', 'activity', 'full_name', 'director',
                     'grade', 'planned_checks', 'unplanned_checks', 'infringement', 'not_infringement',
                     'unknown_infringement', 'probable_name', 'fines', 'Reviews'],
@@ -167,6 +169,7 @@ table_2 = dash_table.DataTable(
     column_selectable=False, # single or none
     row_selectable='multi', # single or multi
     row_deletable=True, #
+    fixed_rows={'headers': True, 'data': 0},
     hidden_columns=hidden_columns,
     page_action="none", # none if full table
     page_current=0, # opening page
@@ -218,9 +221,8 @@ def update_bar(all_data, slctd_rows):
                       .update_traces(marker_color=colors).update_yaxes(title=column,
                                                                        visible=True, showticklabels=False)
                       )
-            for column in ['rating', 'rating_2'] if column in dff
+            for column in ['rating'] if column in dff
         ]
-
 
 
 if __name__ == '__main__':
