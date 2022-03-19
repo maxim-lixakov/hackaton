@@ -10,7 +10,6 @@ from preprocessing import df_initial
 df_initial.sort_values(by=['rating'], inplace=True, ascending=False)
 df = df_initial.fillna('').drop_duplicates('domain')
 
-
 def floater(x):
     if len(x) > 0:
         return float(x)
