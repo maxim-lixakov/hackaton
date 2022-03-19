@@ -154,5 +154,4 @@ ratings_norm = [round(rating, 3) for rating in ratings_norm]
 ratings_ww_norm = [round(rating, 3) for rating in ratings_ww_norm]
 
 df_initial['rating'] = ratings_norm
-df_initial['rating_2'] = ratings_ww_norm
 df_initial.to_csv('data.csv', index=False)
