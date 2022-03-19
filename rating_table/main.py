@@ -118,7 +118,7 @@ table_1 = dash_table.DataTable(
     column_selectable=False, # single or none
     row_selectable='multi', # single or multi
     row_deletable=True, #
-    hidden_columns=['working_hours', 'phone', 'place_in_search', 'details', 'title',
+    hidden_columns=['working_hours', 'place_in_search', 'details', 'title',
                     'ogrn', 'domain_company_inn_match', 'authorized_capital', 'activity', 'full_name', 'director',
                     'grade', 'planned_checks', 'unplanned_checks', 'infringement', 'not_infringement',
                     'unknown_infringement', 'probable_name', 'fines', 'Reviews'],
