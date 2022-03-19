@@ -217,7 +217,7 @@ def update_bar(all_data, slctd_rows):
                       .update_traces(marker_color=colors).update_yaxes(title=column,
                                                                        visible=True, showticklabels=False)
                       )
-            for column in ['rating', 'rating_2'] if column in dff
+            for column in ['rating'] if column in dff
         ]
 
 
